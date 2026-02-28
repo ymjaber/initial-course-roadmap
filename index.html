@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced .NET + Architecture — Course Roadmap</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-desc: #7a8599;
+            --border: rgba(255, 255, 255, 0.08);
+            --road-color: #334155;
+
+            --core: #6366f1;
+            --core-bg: rgba(99, 102, 241, 0.12);
+            --security: #f59e0b;
+            --security-bg: rgba(245, 158, 11, 0.12);
+            --quality: #14b8a6;
+            --quality-bg: rgba(20, 184, 166, 0.12);
+            --architecture: #a855f7;
+            --architecture-bg: rgba(168, 85, 247, 0.12);
+            --data: #0ea5e9;
+            --data-bg: rgba(14, 165, 233, 0.12);
+            --platform: #64748b;
+            --platform-bg: rgba(100, 116, 139, 0.12);
+
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        /* ── Progress Bar ── */
+        #progress-bar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(15, 17, 23, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        #progress-bar-container h1 {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            color: var(--text-muted);
+            display: none;
+        }
+
+        #progress-track {
+            flex: 1;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--core), var(--architecture));
+            transition: width 0.5s ease;
+        }
+
+        #progress-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* ── Legend ── */
+        #legend {
+            margin: 60px auto 0;
+            max-width: 1200px;
+            padding: 0 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-item.platform .legend-dot {
+            background: transparent;
+            border: 2px dashed var(--platform);
+        }
+
+        #priority-legend {
+            margin: 8px auto 0;
+            max-width: 1200px;
+            padding: 0 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        /* ── Roadmap Container ── */
+        #roadmap-wrapper {
+            overflow-x: auto;
+            overflow-y: visible;
+            width: 100%;
+        }
+
+        #roadmap {
+            position: relative;
+            margin: 24px auto 60px;
+            padding: 0 20px;
+            min-height: 100vh;
+        }
+
+        /* ── Section Dividers ── */
+        .section-divider {
+            position: absolute;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+            left: 0;
+        }
+
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--sec-color), transparent);
+            opacity: 0.4;
+        }
+
+        .section-label {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--sec-color);
+            white-space: nowrap;
+            padding: 10px 28px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(30, 34, 46, 0.95), rgba(20, 22, 30, 0.95));
+            border: 1px solid color-mix(in srgb, var(--sec-color) 30%, transparent);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 16px color-mix(in srgb, var(--sec-color) 15%, transparent);
+        }
+
+        #road-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── SVG Lines ── */
+        .spine-line {
+            fill: none;
+            stroke: var(--road-color);
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .branch-line {
+            fill: none;
+            stroke: var(--road-color);
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+
+        .leaf-line {
+            fill: none;
+            stroke: var(--road-color);
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .line-done {
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        /* ── Nodes ── */
+        .tree-node {
+            position: absolute;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            cursor: default;
+            transition: opacity var(--transition), box-shadow var(--transition);
+        }
+
+        .spine-node {
+            width: 220px;
+            height: 56px;
+            border-radius: 12px;
+            justify-content: center;
+            text-align: center;
+            flex-direction: column;
+            font-size: 14px;
+            font-weight: 700;
+            border: 1px solid;
+            cursor: default;
+        }
+
+        .spine-node .spine-progress {
+            font-size: 11px;
+            font-weight: 500;
+            opacity: 0.7;
+            margin-top: 1px;
+        }
+
+        .topic-node {
+            width: 200px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            padding: 0 12px;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .topic-node:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .leaf-node {
+            width: 180px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            padding: 0 10px;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .leaf-node:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Node checkbox */
+        .node-check {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: transparent;
+            transition: var(--transition);
+        }
+
+        .tree-node.completed .node-check {
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .tree-node.completed {
+            opacity: 0.5;
+        }
+
+        .tree-node.completed:hover {
+            opacity: 0.7;
+        }
+
+        /* Optional nodes */
+        .tree-node.optional {
+            border-style: dashed;
+            opacity: 0.55;
+        }
+
+        .tree-node.optional:hover {
+            opacity: 0.75;
+        }
+
+        .tree-node.optional.completed {
+            opacity: 0.35;
+        }
+
+        .node-label {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Spine node category styles */
+        .spine-node.cat-core {
+            background: var(--bg-card);
+            border-color: color-mix(in srgb, var(--core) 30%, var(--border));
+            color: var(--text-muted);
+        }
+
+        .spine-node.cat-data {
+            background: var(--bg-card);
+            border-color: color-mix(in srgb, var(--data) 30%, var(--border));
+            color: var(--text-muted);
+        }
+
+        .spine-node.cat-quality {
+            background: var(--bg-card);
+            border-color: color-mix(in srgb, var(--quality) 30%, var(--border));
+            color: var(--text-muted);
+        }
+
+        .spine-node.cat-security {
+            background: var(--bg-card);
+            border-color: color-mix(in srgb, var(--security) 30%, var(--border));
+            color: var(--text-muted);
+        }
+
+        .spine-node.cat-architecture {
+            background: var(--bg-card);
+            border-color: color-mix(in srgb, var(--architecture) 30%, var(--border));
+            color: var(--text-muted);
+        }
+
+        .spine-node.cat-platform {
+            background: var(--bg-card);
+            border-color: color-mix(in srgb, var(--platform) 30%, var(--border));
+            color: var(--text-muted);
+            border-style: dashed;
+        }
+
+        /* Completed check colors per category */
+        .cat-core .node-check.checked {
+            background: var(--core);
+        }
+
+        .cat-data .node-check.checked {
+            background: var(--data);
+        }
+
+        .cat-quality .node-check.checked {
+            background: var(--quality);
+        }
+
+        .cat-security .node-check.checked {
+            background: var(--security);
+        }
+
+        .cat-architecture .node-check.checked {
+            background: var(--architecture);
+        }
+
+        .cat-platform .node-check.checked {
+            background: var(--platform);
+        }
+
+        /* ── Tooltip ── */
+        #tooltip {
+            position: absolute;
+            z-index: 200;
+            max-width: 400px;
+            padding: 12px 16px;
+            background: rgba(20, 22, 30, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            backdrop-filter: blur(16px);
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        #tooltip.visible {
+            opacity: 1;
+        }
+
+        #tooltip .tip-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        #tooltip .tip-sep {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin: 8px 0;
+        }
+
+        #tooltip .tip-desc {
+            display: none;
+        }
+
+        #tooltip .tip-desc-ar {
+            font-size: 12px;
+            line-height: 1.8;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        /* ── Responsive ── */
+        @media (min-width: 601px) {
+            #progress-bar-container {
+                padding: 12px 24px;
+                gap: 16px;
+            }
+
+            #progress-bar-container h1 {
+                display: block;
+            }
+
+            #legend {
+                margin-top: 80px;
+                padding: 0 24px;
+                gap: 12px;
+            }
+
+            .legend-item {
+                font-size: 13px;
+                gap: 8px;
+                padding: 6px 14px;
+            }
+
+            #roadmap {
+                margin: 40px auto 80px;
+                padding: 0 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Progress Bar -->
+    <div id="progress-bar-container">
+        <h1>Advanced .NET + Architecture</h1>
+        <div id="progress-track">
+            <div id="progress-fill"></div>
+        </div>
+        <span id="progress-text">0 / 0</span>
+    </div>
+
+    <br><br><br>
+    <!-- Roadmap -->
+    <div id="roadmap-wrapper">
+        <div id="roadmap">
+            <svg id="road-svg"></svg>
+            <div id="tooltip">
+                <div class="tip-title"></div>
+                <div class="tip-desc"></div>
+                <hr class="tip-sep">
+                <div class="tip-desc-ar" dir="rtl" lang="ar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── Roadmap Data ───
+        const roadmap = [
+            {
+                id: "getting-started", label: "Getting Started", cat: "core",
+                desc: ".NET development environment setup and comparison of C# with other popular languages",
+                descAr: "تجهيز بيئة تطوير .NET ومقارنة C# مع لغات البرمجة الثانية",
+                children: [
+                    {
+                        id: "env-tooling", label: "Environment & Tooling", side: "left",
+                        desc: ".NET development environment installation, configuration, and productive workspace setup",
+                        descAr: "تنزيل وتجهيز بيئة تطوير .NET وأدواتها",
+                        children: [
+                            {id: "dotnet-cli", label: ".NET SDK & CLI", desc: ".NET SDK installation and CLI usage for project creation, building, and package management", descAr: "تنزيل .NET SDK واستخدام الـ CLI"},
+                            {id: "ide-setup", label: "IDE & Editor Setup", desc: "Editor selection and configuration — Visual Studio, VS Code with C# Dev Kit, or JetBrains Rider — along with key productivity shortcuts", descAr: "اختيار وتجهيز المحرر — Visual Studio, VS Code مع C# Dev Kit, JetBrains Rider وتجهيز الاختصارات للإنتاجية"}
+                        ]
+                    },
+                    {
+                        id: "csharp-vs-stack", label: "C# vs PHP/Node.js", side: "right",
+                        desc: "Key differences between C#/.NET and dynamic languages like PHP and JavaScript, and where concepts transfer directly",
+                        descAr: "الفروقات الرئيسية بين C#/.NET واللغات الديناميكية مثل PHP وJavaScript والي اخذتوها بدورة MERN، ووين الأشياء بتتشابه",
+                        children: [
+                            {id: "type-system-diff", label: "Type System & Syntax", desc: "Static typing, generics, and nullable reference types in C# compared with dynamic typing in PHP and JavaScript", descAr: "مقارنة الstatic typing والـ Generics والnullable reference types بـ C# مع الdynamic typing بـ PHP وJavaScript"},
+                            {id: "runtime-compilation", label: "Runtime & Compilation", desc: "CLR, JIT compilation, and ahead-of-time publishing versus interpreted runtimes like V8 and Zend", descAr: "CLR وJIT compilation وAOT والفرق بينها وبين interpreted runtimes مثل V8 وZend"},
+                            {id: "ecosystem-packages", label: "Ecosystem & Packages", desc: "NuGet vs npm/Composer, .csproj vs package.json, and .NET ecosystem organization for libraries and tools", descAr: "مقارنة NuGet مع npm/Composer و.csproj مع package.json وكيف المكتبات والأدوات منظّمة بنظام .NET"}
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "csharp-fundamentals", label: "C# Fundamentals", cat: "core",
+                desc: "C# type system, pattern matching, null safety, and LINQ — the everyday building blocks of .NET code",
+                descAr: "أساسيات الC# وال.NET",
+                children: [
+                    {
+                        id: "types-generics", label: "Types & Generics", side: "left",
+                        desc: "Advanced C# type system features including generic constraints, pattern matching, and record types",
+                        descAr: "ميزات متقدمة للأنواع في ال C#",
+                        children: [
+                            {id: "basic-types-syntax", label: "Types, Syntax & Control", desc: "C# fundamentals: value vs reference types, control flow, methods, classes, and basic OOP concepts", descAr: "value vs reference types, control flow, methods, classes"},
+                            {id: "adv-types-records", label: "Generics & Records", desc: "Generic constraints, record types for immutable data, and advanced type features for expressive, safe code", descAr: "Generics وRecord للبيانات الغير قابلة للتغيير"}
+                        ]
+                    },
+                    {id: "pattern-matching", label: "Pattern Matching", side: "left", desc: "C# pattern matching expressions — type patterns, property patterns, switch expressions, and relational patterns", descAr: "تعبيرات Pattern Matching بـ C# — أنماط الأنواع وأنماط الخصائص وتعبيرات Switch والأنماط العلائقية"},
+                    {id: "null-safety", label: "Null Safety", side: "right", desc: "Nullable reference types, null-safety annotations, and patterns that eliminate null reference exceptions", descAr: "طرق التعامل مع null"},
+                    {
+                        id: "linq", label: "LINQ", side: "right",
+                        desc: "Expressive LINQ queries, data projection and aggregation, deferred execution, and performance implications",
+                        descAr: "LINQ والتعامل مع الdata structures",
+                        children: [
+                            {id: "linq-basics", label: "Queries & Projections", desc: "LINQ queries with Where, Select, GroupBy, and Join — deferred execution and query composition", descAr: "LINQ والتعامل مع الdata structures"},
+                            {id: "linq-advanced", label: "Custom Operators & Perf", desc: "Custom LINQ operators, performance optimization, and expression trees for dynamic queries", descAr: ""}
+                        ]
+                    },
+                    {id: "http-fundamentals", label: "HTTP Fundamentals", side: "right", desc: "HTTP request/response model, methods, headers, status codes, and TLS basics — the foundation of every web API", descAr: ""}
+                ]
+            },
+            {
+                id: "oop-solid-patterns", label: "OOP, SOLID & Patterns", cat: "core",
+                desc: "Object-oriented principles, SOLID design rules, and classic design patterns for maintainable C# code",
+                descAr: "",
+                children: [
+                    {id: "oop-encapsulation", label: "OOP & Encapsulation", side: "left", desc: "Object state protection with invariants, implementation hiding through encapsulation, and composition over inheritance", descAr: ""},
+                    {id: "clean-code", label: "Clean Code", side: "left", desc: "Practical naming conventions, focused and cohesive classes, and consistent error-handling strategy across the codebase", descAr: ""},
+                    {id: "refactoring", label: "Refactoring", side: "left", desc: "Common code smells — long methods, feature envy, primitive obsession — and targeted refactorings to fix them", descAr: ""},
+                    {id: "solid-principles", label: "SOLID Principles", side: "right", desc: "Each SOLID principle as a design force — SRP, OCP, LSP, ISP, DIP — applied in real production code", descAr: ""},
+                    {id: "creational-patterns", label: "Creational Patterns", side: "right", desc: "Creational patterns for encapsulating object creation: Factory Method, Abstract Factory, Builder, and justified Singleton usage", descAr: ""},
+                    {id: "behavioral-structural", label: "Behavioral & Structural", side: "right", desc: "Strategy, Decorator, Observer, Adapter, and Chain of Responsibility patterns for swappable algorithms and layered behavior", descAr: ""}
+                ]
+            },
+            {
+                id: "dependency-injection", label: "Dependency Injection", cat: "core",
+                desc: "Built-in DI container usage for managing service lifetimes and maintaining loose coupling",
+                descAr: "",
+                children: [
+                    {id: "builtin-di", label: "Built-in DI", side: "left", desc: ".NET's built-in DI container — transient, scoped, and singleton lifetimes and registration strategies", descAr: ""},
+                    {id: "options-config", label: "Options & Configuration", side: "left", desc: "Options pattern for binding configuration sections, secrets management, and environment-specific settings across dev/staging/prod", descAr: ""},
+                    {id: "autofac", label: "AutoFac", side: "right", opt: true, desc: "AutoFac modules, property injection, and advanced lifetime scoping — when Microsoft.Extensions.DependencyInjection isn't enough", descAr: ""},
+                    {id: "scrutor", label: "Scrutor", side: "right", opt: true, desc: "Automatic service registration by convention using assembly scanning, reducing manual DI boilerplate", descAr: ""}
+                ]
+            },
+            {
+                id: "aspnet-core", label: "ASP.NET Core", cat: "core",
+                desc: "Web application and API development with ASP.NET Core — middleware pipeline, routing, configuration, and deployment",
+                descAr: "",
+                children: [
+                    {
+                        id: "project-structure-mvc", label: "Project Structure & MVC", side: "left",
+                        desc: "ASP.NET Core project layout, MVC pattern, and request flow from Kestrel through middleware to the endpoint",
+                        descAr: "",
+                        children: [
+                            {id: "team-standards", label: "Team Standards", desc: "Git branching conventions, PR review checklists, and automated code formatting rules", descAr: "اصطلاحات تفريع Git وقوائم مراجعة PR وقواعد تنسيق الكود الآلية"},
+                            {id: "ci-pipeline", label: "CI Pipeline", desc: "Continuous integration pipeline setup for automatic builds and test suite execution on every commit", descAr: ""}
+                        ]
+                    },
+                    {id: "middleware", label: "Middleware", side: "left", desc: "Middleware pipeline mechanics and request flow through middleware to the endpoint and back", descAr: ""},
+                    {id: "routing-filters", label: "Routing & Filters", side: "right", desc: "Routing and endpoint mapping configuration with action, exception, and result filters for cross-cutting concerns", descAr: ""},
+                    {id: "minimal-apis", label: "Minimal APIs", side: "right", desc: "Lightweight HTTP endpoints with Minimal APIs — inline route definitions, parameter binding, and when to prefer them over controllers", descAr: ""}
+                ]
+            },
+            {
+                id: "rest-api-design", label: "REST API Design", cat: "core",
+                desc: "Clean, well-documented REST API design with proper resource modeling, versioning, and OpenAPI specifications",
+                descAr: "",
+                children: [
+                    {
+                        id: "rest-design", label: "REST Design & Validation", side: "left",
+                        desc: "RESTful endpoint design with proper resource naming, HTTP status codes, pagination, versioning, and validation",
+                        descAr: "",
+                        children: [
+                            {id: "resource-design", label: "Resources & Status Codes", desc: "RESTful resource design — proper naming, correct HTTP status codes, cursor/offset pagination, and versioning strategy", descAr: ""},
+                            {id: "validation-problemdetails", label: "Validation & ProblemDetails", desc: "Input validation, structured errors using RFC 7807 ProblemDetails, and consistent response envelopes", descAr: ""}
+                        ]
+                    },
+                    {id: "api-documentation", label: "API Documentation", side: "left", desc: "Clear API documentation with request/response examples and contract discipline for predictable consumer experience", descAr: ""},
+                    {id: "razor-pages", label: "Razor Pages", side: "right", opt: true, desc: "Server-rendered pages with Razor Pages — a page-focused alternative to MVC for simpler UI scenarios", descAr: ""},
+                    {id: "odata", label: "OData", side: "right", opt: true, desc: "Queryable REST endpoints using OData conventions — $filter, $select, $expand, $orderby — enabling client-shaped queries", descAr: ""}
+                ]
+            },
+            {
+                id: "perf-ops-resilience", label: "Performance, Operations & Resilience", cat: "core",
+                desc: "Performance profiling, caching, structured logging, health checks, rate limiting, and resilience patterns",
+                descAr: "",
+                children: [
+                    {
+                        id: "caching", label: "Caching", side: "left",
+                        desc: "In-memory and distributed caching for reducing load and improving response times",
+                        descAr: "",
+                        children: [
+                            {id: "output-caching", label: "Output Caching", desc: "Output caching middleware for caching entire responses — policies, vary by query/header, and cache invalidation", descAr: ""},
+                            {id: "distributed-caching", label: "Distributed Caching", desc: "IDistributedCache with Redis or SQL Server for shared cache state across multiple application instances", descAr: ""}
+                        ]
+                    },
+                    {id: "background-services", label: "Background Services", side: "left", desc: "Background work with IHostedService and BackgroundService — queue processing, scheduled tasks, and long-running operations", descAr: ""},
+                    {
+                        id: "health-resilience", label: "Health & Resilience", side: "right",
+                        desc: "Resilient HTTP calls and application health monitoring with structured health checks and transient fault handling",
+                        descAr: "",
+                        children: [
+                            {id: "health-checks", label: "Health Checks", desc: "Health check endpoints for readiness and liveness probes — database connectivity, external services, and custom indicators", descAr: ""},
+                            {id: "polly-resilience", label: "Polly & Resilience", desc: "Transient fault handling with retry, circuit breaker, timeout, and bulkhead policies using Microsoft.Extensions.Http.Resilience (Polly v8)", descAr: ""}
+                        ]
+                    },
+                    {id: "rate-limiting", label: "Rate Limiting", side: "right", desc: "API abuse protection with .NET's built-in rate limiting middleware — fixed window, sliding window, token bucket, and concurrency limiters", descAr: ""}
+                ]
+            },
+            {
+                id: "advanced-apis", label: "Advanced APIs", cat: "platform",
+                desc: "Beyond REST — GraphQL, gRPC, real-time communication via SignalR, and API gateway patterns",
+                descAr: "",
+                children: [
+                    {id: "grpc", label: "gRPC", side: "left", desc: "gRPC with Protocol Buffers for high-throughput service-to-service calls with strong typing and binary performance", descAr: ""},
+                    {id: "api-gateway-yarp", label: "API Gateway (YARP)", side: "left", desc: "YARP (Yet Another Reverse Proxy) for building a high-performance .NET API gateway — routing, transformation, and load balancing", descAr: ""},
+                    {id: "graphql", label: "GraphQL", side: "right", desc: "GraphQL Backend-for-Frontend for aggregating data from multiple sources with disciplined schema and resolver design", descAr: ""},
+                    {id: "signalr-websockets", label: "SignalR & WebSockets", side: "right", desc: "Real-time features with SignalR — hub configuration, connection management, and scaling across multiple server instances", descAr: ""},
+                    {id: "ocelot", label: "Ocelot", side: "right", opt: true, desc: "Lightweight .NET API gateway with built-in routing, rate limiting, and service discovery for smaller architectures", descAr: ""}
+                ]
+            },
+            {
+                id: "databases", label: "Databases", cat: "data",
+                desc: "Relational and NoSQL database design and querying — SQL Server, PostgreSQL, MongoDB, and Redis",
+                descAr: "",
+                children: [
+                    {
+                        id: "relational", label: "Relational", side: "left",
+                        desc: "SQL fundamentals and relational database design — normalization, ER diagrams, queries, and transactions",
+                        descAr: "",
+                        children: [
+                            {id: "sql-fundamentals", label: "SQL Fundamentals", desc: "Core SQL: SELECT, JOINs, subqueries, GROUP BY, stored procedures, triggers, and database design with normalization (1NF–3NF) and ER diagrams", descAr: ""},
+                            {id: "postgresql", label: "PostgreSQL", desc: "Constraints, indexes, transactions, and isolation levels in PostgreSQL — the primary relational database for the course", descAr: ""},
+                            {id: "sqlite", label: "SQLite", desc: "SQLite as an embedded database — ideal use cases, limitations, and practical applications for testing", descAr: ""},
+                            {id: "sql-server", label: "SQL Server", opt: true, desc: "Microsoft's enterprise relational database — T-SQL extensions, SSMS, and .NET tooling integration", descAr: ""},
+                            {id: "mariadb", label: "MariaDB", opt: true, desc: "Open-source relational database — MySQL compatibility, MariaDB enhancements, and selection criteria vs PostgreSQL", descAr: ""}
+                        ]
+                    },
+                    {
+                        id: "nosql", label: "NoSQL", side: "right",
+                        desc: "Document stores, key-value caches, wide-column databases, and full-text search engines",
+                        descAr: "",
+                        children: [
+                            {id: "mongodb", label: "MongoDB", desc: "MongoDB document modeling with proper indexing, queries, and aggregation pipelines for flexible schema designs", descAr: ""},
+                            {id: "redis", label: "Redis", desc: "Redis data structures for caching, pub/sub messaging, rate limiting, and distributed locking", descAr: ""},
+                            {id: "cassandra", label: "Cassandra", opt: true, desc: "High-throughput wide-column workloads with tunable consistency for massive-scale distributed data", descAr: ""},
+                            {id: "elasticsearch", label: "ElasticSearch", opt: true, desc: "Large-volume text indexing and search — full-text queries, aggregations, and integration via NEST or Elastic.Clients.Elasticsearch", descAr: ""}
+                        ]
+                    },
+                ]
+            },
+            {
+                id: "orm-data-access", label: "ORM & Data Access", cat: "data",
+                desc: "Entity Framework Core and Dapper for data access — migrations, query optimization, and the repository pattern",
+                descAr: "",
+                children: [
+                    {
+                        id: "ef-core", label: "EF Core", side: "left",
+                        desc: "Domain model to database table mapping with Entity Framework Core — the primary ORM for .NET",
+                        descAr: "",
+                        children: [
+                            {id: "ef-fundamentals", label: "DbContext & Migrations", desc: "Domain model to table mapping, entity relationship configuration, and schema evolution with migrations", descAr: ""},
+                            {id: "ef-tracking", label: "Tracking & Concurrency", desc: "Change tracker lifecycle, optimistic concurrency with tokens, and loading strategy comparison", descAr: ""},
+                            {id: "ef-pitfalls", label: "Pitfalls & Performance", desc: "N+1 query identification and resolution, split query usage, and common EF Core performance traps", descAr: ""}
+                        ]
+                    },
+                    {id: "dapper", label: "Dapper", side: "right", desc: "Dapper for performance-critical read paths — raw SQL control over queries, result mapping, and transaction management", descAr: ""},
+                    {id: "repodb", label: "RepoDB", side: "right", opt: true, desc: "Hybrid ORM between Dapper and EF Core — fluent mapping and batch operations with less overhead than a full ORM", descAr: ""},
+                    {id: "nhibernate", label: "NHibernate", side: "right", opt: true, desc: "The original .NET ORM — rich mapping, second-level caching, and HQL for legacy codebase migration scenarios", descAr: ""},
+                    {id: "litedb", label: "LiteDB", side: "right", opt: true, desc: "Serverless embedded NoSQL document database for .NET — ideal for small apps, prototyping, and local storage", descAr: ""}
+                ]
+            },
+            {
+                id: "unit-testing-tdd", label: "Unit Testing & TDD", cat: "quality",
+                desc: "Unit testing with xUnit, dependency mocking, and test-driven development for reliable code",
+                descAr: "",
+                children: [
+                    {
+                        id: "unit-testing", label: "Unit Testing", side: "left",
+                        desc: "Effective unit tests with xUnit, test doubles, and data generators",
+                        descAr: "",
+                        children: [
+                            {id: "xunit", label: "xUnit", desc: "xUnit test project setup, well-structured tests with clear assertions, and test fixture lifecycle management", descAr: ""},
+                            {id: "test-doubles", label: "Test Doubles & Mocking", desc: "Stubs, mocks, and fakes with Moq/NSubstitute — knowing when test doubles add value vs when over-mocking creates brittleness. Bogus/AutoFixture for test data", descAr: ""},
+                            {id: "nunit", label: "NUnit", opt: true, desc: "Mature testing framework with rich assertion model, parameterized tests, and attribute-based style", descAr: ""},
+                            {id: "shouldly", label: "Shouldly", opt: true, desc: "Readable test assertions with Shouldly's fluent syntax — clearer failure messages and natural language feel", descAr: ""}
+                        ]
+                    },
+                    {
+                        id: "testable-code", label: "Writing Testable Code", side: "right",
+                        desc: "Code design for testability through architectural patterns and clear seams",
+                        descAr: "",
+                        children: [
+                            {id: "ports-adapters", label: "Ports & Adapters", desc: "Contract definition with interfaces and dependency inversion for swappable test implementations", descAr: ""},
+                            {id: "code-structure", label: "Code Structure", desc: "Pure logic separation from I/O and side effects, static coupling avoidance, and isolated unit testability", descAr: ""},
+                            {id: "seams", label: "Seams", desc: "Test seam identification and creation — points for inserting test doubles via constructor injection, method overrides, and configuration", descAr: ""}
+                        ]
+                    },
+                    {id: "tdd", label: "TDD", side: "right", desc: "TDD cycle practice: failing test → passing implementation → refactoring, and where TDD provides the most value", descAr: ""},
+                    {
+                        id: "code-coverage", label: "Code Coverage & Quality Gates", side: "right",
+                        desc: "Test effectiveness measurement with Coverlet, CI coverage thresholds, and understanding what coverage metrics reveal — and what they don't",
+                        descAr: ""
+                    }
+                ]
+            },
+            {
+                id: "integration-system-testing", label: "Integration & System Testing", cat: "quality",
+                desc: "Full request pipeline testing with WebApplicationFactory, Testcontainers, and end-to-end acceptance tests",
+                descAr: "",
+                children: [
+                    {
+                        id: "integration-testing", label: "Integration Testing", side: "left",
+                        desc: "Full API-to-database flow testing with real infrastructure",
+                        descAr: "",
+                        children: [
+                            {id: "webappfactory", label: "WebApplicationFactory", desc: "Integration tests exercising the full API-to-database flow using WebApplicationFactory and Respawn for fast cleanup", descAr: ""},
+                            {id: "testcontainers", label: "Testcontainers", desc: "Real database instances in Docker for integration tests using Testcontainers — no infrastructure mocking", descAr: ""}
+                        ]
+                    },
+                    {id: "contract-testing", label: "Contract Testing", side: "left", desc: "API response shape stability verification across releases to prevent silent consumer breakage", descAr: ""},
+                    {id: "e2e-testing", label: "E2E Testing", side: "right", opt: true, desc: "End-to-end browser tests using Playwright — cross-browser automation, page object models, and CI integration", descAr: ""},
+                    {
+                        id: "performance-testing", label: "Performance Testing", side: "right",
+                        desc: "Performance verification with micro-benchmarks and load tests to catch regressions before production",
+                        descAr: "",
+                        children: [
+                            {id: "benchmarkdotnet", label: "BenchmarkDotNet", desc: "Code path profiling and comparison with BenchmarkDotNet — allocation, throughput, and latency measurement with statistical rigor", descAr: ""},
+                            {id: "load-testing", label: "Load Testing", desc: "Concurrent user and traffic pattern simulation with k6 or NBomber — throughput limits, latency percentiles, and breaking points", descAr: ""}
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "identity-access-control", label: "Identity & Access Control", cat: "security",
+                desc: "Authentication and authorization implementation — ASP.NET Identity, JWT, OAuth 2.0, and role/policy-based access",
+                descAr: "",
+                children: [
+                    {
+                        id: "authentication", label: "Authentication", side: "left",
+                        desc: "AuthN fundamentals — OAuth2/OIDC, JWT validation, and identity provider integration",
+                        descAr: "",
+                        children: [
+                            {id: "oauth2-jwt", label: "OAuth2 / JWT", desc: "AuthN vs AuthZ distinction, OAuth2/OIDC flow mental models, and correct JWT validation — issuer, audience, key rotation", descAr: ""},
+                            {id: "identity-providers", label: "Identity Providers", desc: "Real identity provider connection (Keycloak/Azure AD) with default-deny configuration for unauthenticated requests", descAr: ""}
+                        ]
+                    },
+                    {id: "mfa", label: "MFA", side: "left", desc: "Multi-factor authentication enforcement, privileged admin role protection, and break-glass procedures for emergency access", descAr: ""},
+                    {
+                        id: "authorization", label: "Authorization", side: "right",
+                        desc: "Fine-grained access control with policies, roles, and claims",
+                        descAr: "",
+                        children: [
+                            {id: "rbac-abac", label: "RBAC / ABAC", desc: "Fine-grained access control using .NET's policy-based authorization — role-based, attribute-based, and claim-based approaches compared", descAr: ""},
+                            {id: "idor-prevention", label: "IDOR Prevention", desc: "Resource ownership enforcement — preventing the most frequently exploited vulnerability in real-world applications", descAr: ""}
+                        ]
+                    },
+                    {id: "secrets-management", label: "Secrets Management", side: "right", desc: "Credentials out of source code — user-secrets in development, Azure Key Vault or AWS Secrets Manager in production, wired through IConfiguration", descAr: ""}
+                ]
+            },
+            {
+                id: "application-security", label: "Application Security", cat: "security",
+                desc: "OWASP Top 10 threat protection — input validation, CORS, HTTPS, encryption, and security headers",
+                descAr: "",
+                children: [
+                    {id: "threat-modeling", label: "Threat Modeling", side: "left", desc: "Trust boundary mapping and top attack vector identification: broken access control, injection, and security misconfiguration", descAr: ""},
+                    {
+                        id: "owasp-secure-coding", label: "OWASP & Secure Coding", side: "left",
+                        desc: "Defense against common web vulnerabilities through input validation, parameterized queries, and output encoding",
+                        descAr: "",
+                        children: [
+                            {id: "input-validation", label: "Input Validation", desc: "External input validation and sanitization at the API boundary using FluentValidation or data annotations with early rejection of unexpected shapes", descAr: ""},
+                            {id: "injection-prevention", label: "Injection Prevention", desc: "SQL injection prevention with parameterized queries/ORMs, command injection guarding, and EF Core's default protections", descAr: ""},
+                            {id: "xss-csrf", label: "XSS & CSRF Prevention", desc: "Output encoding for XSS prevention, anti-forgery token configuration, and SameSite cookie policies", descAr: ""}
+                        ]
+                    },
+                    {
+                        id: "data-protection", label: "Data Protection", side: "right",
+                        desc: "Encryption, hashing, and protection of sensitive data at rest and in transit",
+                        descAr: "",
+                        children: [
+                            {id: "data-protection-api", label: "Data Protection API", desc: "ASP.NET Core Data Protection API for encrypting cookies, tokens, and sensitive payloads — key rings, key rotation, and persistence", descAr: ""},
+                            {id: "encryption-hashing", label: "Encryption & Hashing", desc: "Right algorithm for the job — AES for symmetric encryption, RSA for asymmetric, bcrypt/Argon2 for password hashing", descAr: ""}
+                        ]
+                    },
+                    {id: "security-headers-cors", label: "Security Headers & CORS", side: "right", desc: "CORS policy configuration, HTTPS enforcement with HSTS, and security headers (CSP, X-Content-Type-Options, X-Frame-Options) via middleware", descAr: ""}
+                ]
+            },
+            {
+                id: "concurrency-async", label: "Concurrency & Async", cat: "quality",
+                desc: "async/await, Task Parallel Library, and thread-safe patterns for responsive, scalable applications",
+                descAr: "",
+                children: [
+                    {id: "async-await", label: "async/await", side: "left", desc: "Asynchronous programming mastery — CancellationTokens, proper timeouts, deadlock avoidance, and concurrent operation throttling", descAr: ""},
+                    {id: "parallel-programming", label: "Parallel Programming", side: "left", desc: "CPU-bound parallelism vs IO-bound async distinction and choosing the right concurrency pattern per scenario", descAr: ""},
+                    {
+                        id: "background-services", label: "Background Services", side: "right",
+                        desc: "Background work in ASP.NET Core with IHostedService and BackgroundService — recurring job scheduling with Hangfire or Quartz.NET",
+                        descAr: ""
+                    },
+                    {id: "channels-dataflow", label: "Channels & Dataflow", side: "right", desc: "System.Threading.Channels for bounded/unbounded producer-consumer pipelines — when to prefer channels over ConcurrentQueue or BlockingCollection", descAr: ""}
+                ]
+            },
+            {
+                id: "advanced-csharp-internals", label: "Advanced C# & .NET Internals", cat: "quality",
+                desc: "Span&lt;T&gt;, source generators, reflection, and CLR internals powering high-performance .NET code",
+                descAr: "",
+                children: [
+                    {id: "reflection", label: "Reflection", side: "left", desc: "Metadata inspection, dynamic method invocation, and understanding when reflection is appropriate vs when to avoid it", descAr: ""},
+                    {id: "source-generators", label: "Source Generators", side: "left", desc: "Compile-time code generation with source generators — eliminating boilerplate while keeping runtime performance optimal", descAr: ""},
+                    {id: "memory-span", label: "Memory & Span<T>", side: "right", desc: "Allocation-free code with Span&lt;T&gt;, Memory&lt;T&gt;, and ArrayPool&lt;T&gt; — stack vs heap, ref structs, and when high-performance memory patterns matter", descAr: ""},
+                    {id: "algorithms-ds", label: "Algorithms & Data Structures", side: "right", desc: "Essential algorithm patterns, Big-O reasoning, and .NET collection internals", descAr: ""}
+                ]
+            },
+            {
+                id: "software-architecture", label: "Software Architecture", cat: "architecture",
+                desc: "Application structuring with Clean Architecture, CQRS, microservices, and modular monolith patterns",
+                descAr: "",
+                children: [
+                    {id: "solution-architecture", label: "Solution Architecture", side: "left", desc: "System boundary definition, quality attribute identification (scalability, reliability, maintainability), and informed architectural trade-offs", descAr: ""},
+                    {
+                        id: "clean-architecture", label: "Clean Architecture", side: "left",
+                        desc: "Dependency rule enforcement: inner layers never reference outer layers — clarifying what belongs in domain, application, infrastructure, and presentation",
+                        descAr: ""
+                    },
+                    {id: "object-mapping", label: "Object Mapping", side: "left", desc: "Inter-layer mapping using AutoMapper, Mapperly source-generated mappers, or manual mapping — trade-offs of each approach", descAr: ""},
+                    {
+                        id: "modular-monolith", label: "Modular Monolith", side: "right",
+                        desc: "Monolith structuring into well-bounded modules with explicit contracts",
+                        descAr: "",
+                        children: [
+                            {id: "module-boundaries", label: "Module Boundaries", desc: "Module boundary definition, explicit contracts, and inter-module integration styles — direct calls, in-process messaging, shared kernel", descAr: ""},
+                            {id: "module-design-dotnet", label: "Module Design in .NET", desc: "Real modular monolith construction: project structure, module registration, inter-module contracts, and module boundary testing", descAr: ""}
+                        ]
+                    },
+                    {id: "vertical-slices", label: "Vertical Slices", side: "right", desc: "Feature-organized code — each slice contains its own handler, validation, and data access with minimal shared abstractions", descAr: ""},
+                    {id: "adrs", label: "ADRs", side: "right", desc: "Architecture decision documentation using ADRs — capturing why choices were made, not just what was chosen", descAr: ""}
+                ]
+            },
+            {
+                id: "ddd-event-driven", label: "DDD & Event-Driven", cat: "architecture",
+                desc: "Complex domain modeling with Domain-Driven Design and reactive systems using event sourcing and message brokers",
+                descAr: "",
+                children: [
+                    {id: "ddd-essentials", label: "DDD Essentials", side: "left", desc: "Business domain modeling using aggregates, value objects, domain events, and bounded contexts", descAr: ""},
+                    {id: "eventstorming", label: "EventStorming", side: "left", desc: "Collaborative EventStorming sessions: big picture of business events → processes → design-level model → code structure", descAr: ""},
+                    {id: "cqrs", label: "CQRS", side: "left", desc: "Command (write) and query (read) path separation where complexity justifies it — avoiding over-engineering simple CRUD", descAr: ""},
+                    {id: "eda-fundamentals", label: "EDA Fundamentals", side: "right", desc: "Event-driven communication trade-offs: eventual consistency, retry strategies with exponential backoff, and distributed failure modes", descAr: ""},
+                    {id: "event-sourcing", label: "Event Sourcing", side: "right", desc: "Domain event storage instead of current state — read-model projections from event streams and snapshots for performance", descAr: ""},
+                    {id: "messaging-masstransit", label: "Messaging (MassTransit)", side: "right", desc: "MassTransit for message-based communication over RabbitMQ or Kafka with transactional outbox pattern and idempotent consumer design", descAr: ""}
+                ]
+            },
+            {
+                id: "containers", label: "Containers", cat: "platform",
+                desc: ".NET app containerization with Docker and orchestration using Docker Compose and Kubernetes",
+                descAr: "",
+                children: [
+                    {id: "docker", label: "Docker", side: "left", desc: ".NET application containerization with multi-stage Dockerfiles, image size optimization, and security best practices", descAr: ""},
+                    {id: "docker-compose", label: "Docker Compose", side: "left", desc: "Multi-container development environment setup with Docker Compose and .NET Aspire for cloud-native orchestration", descAr: ""},
+                    {id: "kubernetes", label: "Kubernetes", side: "right", desc: "Kubernetes deployment — pods, services, and deployments, compared with serverless compute for simpler workloads", descAr: ""}
+                ]
+            },
+            {
+                id: "devops-cloud", label: "DevOps & Cloud", cat: "platform",
+                desc: "CI/CD pipeline automation with GitHub Actions, Azure/AWS deployment, and infrastructure as code",
+                descAr: "",
+                children: [
+                    {id: "git", label: "Git", side: "left", desc: "Day-to-day Git: branching strategies, conflict resolution, interactive rebase, stashing, and good commit messages", descAr: ""},
+                    {id: "cicd-github-actions", label: "CI/CD (GitHub Actions)", side: "left", desc: "CI/CD pipelines with GitHub Actions — build automation, test execution, artifact publishing, and staging/production deployment", descAr: ""},
+                    {id: "cloud-aws-azure", label: "Cloud (AWS/Azure)", side: "right", desc: "Secure configuration and secrets management, managed identity service authentication, and IAM least-privilege principles", descAr: ""},
+                    {id: "observability", label: "Observability", side: "right", desc: "Three observability pillars: structured logging with Serilog, OpenTelemetry for metrics and traces, and operational runbooks", descAr: ""}
+                ]
+            },
+            {
+                id: "frontend", label: "Frontend", cat: "platform",
+                desc: "Interactive UI development with Blazor and integration with JavaScript frameworks like React and Angular",
+                descAr: "",
+                children: [
+                    {id: "bootstrap", label: "Bootstrap", side: "left", desc: "Responsive layouts with Bootstrap's grid system, pre-built components, and utility classes for rapid UI development", descAr: ""},
+                    {id: "typescript", label: "TypeScript", side: "left", desc: "TypeScript fundamentals: static types, interfaces, generics, and how TypeScript tooling prevents runtime errors", descAr: ""},
+                    {id: "blazor", label: "Blazor", side: "right", desc: "Interactive web UIs with Blazor — component model, event handling, and REST API consumption from the frontend", descAr: ""},
+                    {id: "react", label: "Advanced React", side: "left", desc: "Interactive web UIs with Blazor — component model, event handling, and REST API consumption from the frontend", descAr: ""}
+                ]
+            },
+            {
+                id: "ai-engineering", label: "AI Engineering", cat: "platform",
+                desc: "AI integration in .NET applications using Semantic Kernel, ML.NET, and large language model APIs",
+                descAr: "",
+                children: [
+                    {id: "ai-dotnet", label: "AI for .NET", side: "left", desc: "AI capability integration in .NET applications using SDKs, effective prompt design, and structured output parsing from language models", descAr: ""},
+                    {id: "rag-pipeline", label: "RAG Pipeline", side: "left", desc: "Retrieval-augmented generation pipeline: document indexing, LLM response grounding, access control enforcement, and quality evaluation", descAr: ""},
+                    {id: "ai-agents-mcp", label: "AI Agents & MCP", side: "right", desc: "AI agent tool building in C#, Model Context Protocol integration for tool serving, and agent workflow design with structured tool use", descAr: ""}
+                ]
+            }
+        ];
+
+        // ─── Flatten tree into lookup ───
+        const nodeMap = {};  // id → { id, label, desc, cat, opt, side, type, parentId, children[] }
+        const spineNodes = [];
+
+        function flattenTree(tree) {
+            tree.forEach(spine => {
+                const sNode = {id: spine.id, label: spine.label, desc: spine.desc || '', descAr: spine.descAr || '', cat: spine.cat, type: 'spine', children: []};
+                nodeMap[spine.id] = sNode;
+                spineNodes.push(sNode);
+
+                (spine.children || []).forEach(topic => {
+                    const tNode = {
+                        id: topic.id, label: topic.label, desc: topic.desc || '', descAr: topic.descAr || '',
+                        cat: spine.cat, opt: !!topic.opt, side: topic.side,
+                        type: 'topic', parentId: spine.id, children: []
+                    };
+                    nodeMap[topic.id] = tNode;
+                    sNode.children.push(tNode);
+
+                    (topic.children || []).forEach(leaf => {
+                        const lNode = {
+                            id: leaf.id, label: leaf.label, desc: leaf.desc || '', descAr: leaf.descAr || '',
+                            cat: spine.cat, opt: !!leaf.opt, side: topic.side,
+                            type: 'leaf', parentId: topic.id
+                        };
+                        nodeMap[leaf.id] = lNode;
+                        tNode.children.push(lNode);
+                    });
+                });
+            });
+        }
+
+        flattenTree(roadmap);
+
+        // ─── State ───
+        const STORAGE_KEY = 'dotnet-roadmap-tree-progress';
+        let completed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+        }
+
+        // ─── Sections (position labels) ───
+        const sections = [
+            {label: "Junior .NET Developer", color: "#60a5fa", spines: ["getting-started", "csharp-fundamentals", "oop-solid-patterns", "dependency-injection"]},
+            {label: ".NET Web Developer", color: "#4ade80", spines: ["aspnet-core", "rest-api-design", "perf-ops-resilience", "advanced-apis"]},
+            {label: "Data Engineer", color: "#fb923c", spines: ["databases", "orm-data-access"]},
+            {label: "QA Engineer", color: "#e879f9", spines: ["unit-testing-tdd", "integration-system-testing"]},
+            {label: "Security Engineer", color: "#fbbf24", spines: ["identity-access-control", "application-security"]},
+            {label: "Senior .NET Developer", color: "#2dd4bf", spines: ["concurrency-async", "advanced-csharp-internals", "software-architecture", "ddd-event-driven"]},
+            {label: "Platform & DevOps", color: "#f87171", spines: ["containers", "devops-cloud", "frontend"]},
+            {label: "AI Engineering", color: "#a78bfa", spines: ["ai-engineering"]}
+        ];
+
+        // ─── Layout Calculation ───
+        const SPINE_W = 220, SPINE_H = 56;
+        const TOPIC_W = 200, TOPIC_H = 44;
+        const LEAF_W = 180, LEAF_H = 36;
+        const SPINE_GAP = 28;       // vertical gap between spine groups
+        const SECTION_GAP = 64;     // extra vertical gap for section dividers
+        const BRANCH_OFFSET = 160;  // horizontal distance from spine edge to topic
+        const LEAF_GAP = 20;        // horizontal gap between topic edge and leaf
+        const TOPIC_V_GAP = 8;      // vertical gap between sibling topics
+        const LEAF_V_GAP = 6;       // vertical gap between sibling leaves
+
+        let positions = {};       // id → { x, y, w, h, type, side, cat }
+        let sectionPositions = []; // { label, y }
+
+        function computeLayout() {
+            positions = {};
+            sectionPositions = [];
+            const container = document.getElementById('roadmap');
+
+            // Calculate required width: center + both sides at max depth
+            const halfWidth = SPINE_W / 2 + BRANCH_OFFSET + TOPIC_W + LEAF_GAP + LEAF_W;
+            const requiredWidth = halfWidth * 2 + 60; // 60px total padding
+            const containerW = Math.max(requiredWidth, window.innerWidth);
+            container.style.width = containerW + 'px';
+
+            const centerX = containerW / 2;
+            let cursorY = 40;
+
+            // Build a set of spine IDs that start each section (for dividers)
+            const sectionStartMap = {};
+            sections.forEach(sec => {sectionStartMap[sec.spines[0]] = {label: sec.label, color: sec.color};});
+
+            spineNodes.forEach((spine, si) => {
+                // Insert section divider before the first spine of each section
+                if (sectionStartMap[spine.id]) {
+                    if (si > 0) cursorY += SECTION_GAP / 2;
+                    sectionPositions.push({label: sectionStartMap[spine.id].label, color: sectionStartMap[spine.id].color, y: cursorY});
+                    cursorY += 46 + SECTION_GAP / 2;
+                }
+
+                // Place spine node centered
+                const spineX = centerX - SPINE_W / 2;
+                const spineY = cursorY;
+                positions[spine.id] = {x: spineX, y: spineY, w: SPINE_W, h: SPINE_H, type: 'spine', cat: spine.cat};
+
+                // Separate left and right children
+                const leftTopics = spine.children.filter(t => t.side === 'left');
+                const rightTopics = spine.children.filter(t => t.side === 'right');
+
+                // Calculate height needed for each side
+                function sideHeight(topics) {
+                    let h = 0;
+                    topics.forEach((topic, i) => {
+                        const leafCount = (topic.children || []).length;
+                        const topicBlockH = leafCount > 0
+                            ? Math.max(TOPIC_H, leafCount * (LEAF_H + LEAF_V_GAP) - LEAF_V_GAP)
+                            : TOPIC_H;
+                        h += topicBlockH;
+                        if (i < topics.length - 1) h += TOPIC_V_GAP;
+                    });
+                    return h;
+                }
+
+                const leftH = sideHeight(leftTopics);
+                const rightH = sideHeight(rightTopics);
+
+                const topBranchY = spineY + SPINE_H + 16;
+
+                // Place left topics
+                let leftY = topBranchY;
+                leftTopics.forEach(topic => {
+                    const leafCount = (topic.children || []).length;
+                    const topicBlockH = leafCount > 0
+                        ? Math.max(TOPIC_H, leafCount * (LEAF_H + LEAF_V_GAP) - LEAF_V_GAP)
+                        : TOPIC_H;
+
+                    const topicX = centerX - SPINE_W / 2 - BRANCH_OFFSET - TOPIC_W;
+                    const topicCenterY = leftY + topicBlockH / 2 - TOPIC_H / 2;
+                    positions[topic.id] = {x: topicX, y: topicCenterY, w: TOPIC_W, h: TOPIC_H, type: 'topic', side: 'left', cat: topic.cat};
+
+                    // Place leaves further left
+                    if (leafCount > 0) {
+                        let leafY = leftY;
+                        topic.children.forEach(leaf => {
+                            const leafX = topicX - LEAF_GAP - LEAF_W;
+                            positions[leaf.id] = {x: leafX, y: leafY, w: LEAF_W, h: LEAF_H, type: 'leaf', side: 'left', cat: leaf.cat};
+                            leafY += LEAF_H + LEAF_V_GAP;
+                        });
+                    }
+
+                    leftY += topicBlockH + TOPIC_V_GAP;
+                });
+
+                // Place right topics
+                let rightY = topBranchY;
+                rightTopics.forEach(topic => {
+                    const leafCount = (topic.children || []).length;
+                    const topicBlockH = leafCount > 0
+                        ? Math.max(TOPIC_H, leafCount * (LEAF_H + LEAF_V_GAP) - LEAF_V_GAP)
+                        : TOPIC_H;
+
+                    const topicX = centerX + SPINE_W / 2 + BRANCH_OFFSET;
+                    const topicCenterY = rightY + topicBlockH / 2 - TOPIC_H / 2;
+                    positions[topic.id] = {x: topicX, y: topicCenterY, w: TOPIC_W, h: TOPIC_H, type: 'topic', side: 'right', cat: topic.cat};
+
+                    // Place leaves further right
+                    if (leafCount > 0) {
+                        let leafY = rightY;
+                        topic.children.forEach(leaf => {
+                            const leafX = topicX + TOPIC_W + LEAF_GAP;
+                            positions[leaf.id] = {x: leafX, y: leafY, w: LEAF_W, h: LEAF_H, type: 'leaf', side: 'right', cat: leaf.cat};
+                            leafY += LEAF_H + LEAF_V_GAP;
+                        });
+                    }
+
+                    rightY += topicBlockH + TOPIC_V_GAP;
+                });
+
+                const bottomY = Math.max(leftY, rightY, spineY + SPINE_H + 16);
+                cursorY = bottomY + SPINE_GAP;
+            });
+
+            return cursorY;
+        }
+
+        // ─── Render DOM Nodes ───
+        const roadmapEl = document.getElementById('roadmap');
+        let nodeElements = {};  // id → DOM element
+        let sectionElements = []; // section divider DOM elements
+
+        function renderNodes() {
+            // Remove old nodes and sections
+            Object.values(nodeElements).forEach(el => el.remove());
+            nodeElements = {};
+            sectionElements.forEach(el => el.remove());
+            sectionElements = [];
+
+            // Section dividers
+            const containerW = roadmapEl.offsetWidth;
+            sectionPositions.forEach(sec => {
+                const div = document.createElement('div');
+                div.className = 'section-divider';
+                div.style.cssText = `top:${sec.y}px;width:${containerW}px;--sec-color:${sec.color};`;
+                div.innerHTML = `<span class="section-label">${sec.label}</span>`;
+                roadmapEl.appendChild(div);
+                sectionElements.push(div);
+            });
+
+            const catColors = {
+                core: 'var(--core)', data: 'var(--data)', quality: 'var(--quality)',
+                security: 'var(--security)', architecture: 'var(--architecture)', platform: 'var(--platform)'
+            };
+
+            // Spine nodes
+            spineNodes.forEach((spine, si) => {
+                const pos = positions[spine.id];
+                if (!pos) return;
+                const el = document.createElement('div');
+                el.className = `tree-node spine-node cat-${spine.cat}`;
+                el.id = `node-${spine.id}`;
+                el.dataset.nodeId = spine.id;
+                el.style.cssText = `left:${pos.x}px;top:${pos.y}px;width:${pos.w}px;height:${pos.h}px;animation-delay:${si * 0.05}s;`;
+                el.innerHTML = `<span class="node-label">${spine.label}</span><span class="spine-progress"></span>`;
+                roadmapEl.appendChild(el);
+                nodeElements[spine.id] = el;
+            });
+
+            // Topic + leaf nodes
+            let animIdx = spineNodes.length;
+            Object.values(nodeMap).forEach(node => {
+                if (node.type === 'spine') return;
+                const pos = positions[node.id];
+                if (!pos) return;
+
+                const isLeaf = node.type === 'leaf';
+                const cls = isLeaf ? 'leaf-node' : 'topic-node';
+                const el = document.createElement('div');
+                el.className = `tree-node ${cls} cat-${node.cat}`;
+                if (node.opt) el.classList.add('optional');
+                if (completed[node.id]) el.classList.add('completed');
+                el.id = `node-${node.id}`;
+                el.dataset.nodeId = node.id;
+                el.style.cssText = `left:${pos.x}px;top:${pos.y}px;width:${pos.w}px;height:${pos.h}px;animation-delay:${(animIdx++) * 0.02}s;`;
+
+                const checkCls = completed[node.id] ? 'node-check checked' : 'node-check';
+                el.innerHTML = `<span class="${checkCls}">✓</span><span class="node-label">${node.label}</span>`;
+                roadmapEl.appendChild(el);
+                nodeElements[node.id] = el;
+            });
+        }
+
+        // ─── SVG Connections ───
+        function drawConnections() {
+            const svg = document.getElementById('road-svg');
+            const container = document.getElementById('roadmap');
+            const containerW = container.offsetWidth;
+            const containerH = parseInt(container.style.height) || container.offsetHeight;
+            svg.setAttribute('width', containerW);
+            svg.setAttribute('height', containerH);
+            svg.innerHTML = '';
+
+            // Spine line: connect consecutive spine nodes
+            for (let i = 0; i < spineNodes.length - 1; i++) {
+                const a = positions[spineNodes[i].id];
+                const b = positions[spineNodes[i + 1].id];
+                if (!a || !b) continue;
+                const ax = a.x + a.w / 2, ay = a.y + a.h;
+                const bx = b.x + b.w / 2, by = b.y;
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', `M ${ax} ${ay} L ${bx} ${by}`);
+                path.setAttribute('class', 'spine-line');
+                svg.appendChild(path);
+            }
+
+            // Branch lines: spine → topics (right-angle connectors)
+            spineNodes.forEach(spine => {
+                const sPos = positions[spine.id];
+                if (!sPos) return;
+                const spineCX = sPos.x + sPos.w / 2;
+                const spineBottomY = sPos.y + sPos.h;
+
+                spine.children.forEach(topic => {
+                    const tPos = positions[topic.id];
+                    if (!tPos) return;
+                    const isLeft = topic.side === 'left';
+                    const topicEdgeX = isLeft ? (tPos.x + tPos.w) : tPos.x;
+                    const topicCY = tPos.y + tPos.h / 2;
+                    const r = 8;
+
+                    // Path: vertical down from spine bottom to topic's Y, then horizontal to topic
+                    const turnY = topicCY;
+                    const dy = turnY - spineBottomY;
+
+                    let d;
+                    if (Math.abs(dy) < 2) {
+                        d = `M ${spineCX} ${spineBottomY} L ${topicEdgeX} ${topicCY}`;
+                    } else {
+                        const rr = Math.min(r, Math.abs(spineCX - topicEdgeX) / 2, Math.abs(dy));
+                        const signX = isLeft ? -1 : 1;
+                        d = `M ${spineCX} ${spineBottomY}` +
+                            ` L ${spineCX} ${turnY - rr}` +
+                            ` Q ${spineCX} ${turnY} ${spineCX + signX * rr} ${turnY}` +
+                            ` L ${topicEdgeX} ${turnY}`;
+                    }
+
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', d);
+                    path.setAttribute('class', 'branch-line');
+                    svg.appendChild(path);
+
+                    // Leaf connectors: topic → leaves
+                    const leaves = topic.children || [];
+                    if (leaves.length > 0) {
+                        const topicFarX = isLeft ? tPos.x : (tPos.x + tPos.w);
+                        const topicMidY = tPos.y + tPos.h / 2;
+
+                        // Horizontal stub from topic far edge toward leaves
+                        const firstLeaf = positions[leaves[0].id];
+                        const lastLeaf = positions[leaves[leaves.length - 1].id];
+                        if (!firstLeaf || !lastLeaf) return;
+
+                        const trunkX = isLeft ? (firstLeaf.x + firstLeaf.w + LEAF_GAP / 2) : (firstLeaf.x - LEAF_GAP / 2);
+
+                        const stub = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        stub.setAttribute('d', `M ${topicFarX} ${topicMidY} L ${trunkX} ${topicMidY}`);
+                        stub.setAttribute('class', 'leaf-line');
+                        svg.appendChild(stub);
+
+                        // Vertical trunk
+                        const trunkTop = firstLeaf.y + firstLeaf.h / 2;
+                        const trunkBottom = lastLeaf.y + lastLeaf.h / 2;
+                        if (Math.abs(trunkTop - trunkBottom) > 1) {
+                            const trunk = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            trunk.setAttribute('d', `M ${trunkX} ${trunkTop} L ${trunkX} ${trunkBottom}`);
+                            trunk.setAttribute('class', 'leaf-line');
+                            svg.appendChild(trunk);
+                        }
+
+                        // Horizontal taps to each leaf
+                        leaves.forEach(leaf => {
+                            const lPos = positions[leaf.id];
+                            if (!lPos) return;
+                            const leafEdgeX = isLeft ? (lPos.x + lPos.w) : lPos.x;
+                            const leafCY = lPos.y + lPos.h / 2;
+                            const tap = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            tap.setAttribute('d', `M ${trunkX} ${leafCY} L ${leafEdgeX} ${leafCY}`);
+                            tap.setAttribute('class', 'leaf-line');
+                            svg.appendChild(tap);
+                        });
+                    }
+                });
+            });
+        }
+
+        // ─── Tooltip ───
+        const tooltipEl = document.getElementById('tooltip');
+
+        function showTooltip(nodeId, target) {
+            const data = nodeMap[nodeId];
+            if (!data || !data.desc) return;
+            tooltipEl.querySelector('.tip-title').textContent = data.label;
+            tooltipEl.querySelector('.tip-desc').textContent = data.desc;
+
+            const arEl = tooltipEl.querySelector('.tip-desc-ar');
+            const sepEl = tooltipEl.querySelector('.tip-sep');
+            if (data.descAr) {
+                arEl.textContent = data.descAr;
+                arEl.style.display = '';
+                sepEl.style.display = '';
+            } else {
+                arEl.style.display = 'none';
+                sepEl.style.display = 'none';
+            }
+
+            const pos = positions[nodeId];
+            if (!pos) return;
+
+            // Position tooltip relative to the roadmap container
+            let tipX = pos.x + pos.w / 2 - 200;
+            let tipY = pos.y + pos.h + 8;
+
+            // Clamp to visible area
+            const containerW = roadmapEl.offsetWidth;
+            tipX = Math.max(8, Math.min(tipX, containerW - 420));
+
+            tooltipEl.style.left = tipX + 'px';
+            tooltipEl.style.top = tipY + 'px';
+            tooltipEl.classList.add('visible');
+        }
+
+        function hideTooltip() {
+            tooltipEl.classList.remove('visible');
+        }
+
+        // ─── Progress ───
+        function updateProgress() {
+            // Count all topic + leaf nodes (not spine)
+            let totalMandatory = 0, doneMandatory = 0;
+            Object.values(nodeMap).forEach(n => {
+                if (n.type === 'spine') return;
+                if (!n.opt) {
+                    totalMandatory++;
+                    if (completed[n.id]) doneMandatory++;
+                }
+            });
+
+            const pct = totalMandatory > 0 ? Math.round((doneMandatory / totalMandatory) * 100) : 0;
+            document.getElementById('progress-fill').style.width = pct + '%';
+            document.getElementById('progress-text').textContent = `${doneMandatory} / ${totalMandatory}`;
+
+            // Spine progress labels
+            spineNodes.forEach(spine => {
+                const el = nodeElements[spine.id];
+                if (!el) return;
+                let total = 0, done = 0;
+                spine.children.forEach(topic => {
+                    total++; if (completed[topic.id]) done++;
+                    (topic.children || []).forEach(leaf => {
+                        total++; if (completed[leaf.id]) done++;
+                    });
+                });
+                const progEl = el.querySelector('.spine-progress');
+                if (progEl) progEl.textContent = `${done} / ${total}`;
+            });
+        }
+
+        // ─── Click handler ───
+        document.addEventListener('click', (e) => {
+            const node = e.target.closest('.topic-node, .leaf-node');
+            if (!node) return;
+            const id = node.dataset.nodeId;
+            if (!id) return;
+
+            if (completed[id]) {
+                delete completed[id];
+                node.classList.remove('completed');
+                const chk = node.querySelector('.node-check');
+                if (chk) chk.classList.remove('checked');
+            } else {
+                completed[id] = true;
+                node.classList.add('completed');
+                const chk = node.querySelector('.node-check');
+                if (chk) chk.classList.add('checked');
+            }
+
+            saveState();
+            updateProgress();
+        });
+
+        // ─── Hover handler ───
+        document.addEventListener('mouseover', (e) => {
+            const node = e.target.closest('.tree-node');
+            if (node && node.dataset.nodeId) {
+                showTooltip(node.dataset.nodeId, node);
+            }
+        });
+        document.addEventListener('mouseout', (e) => {
+            const node = e.target.closest('.tree-node');
+            if (node) hideTooltip();
+        });
+
+        // ─── Full render ───
+        function fullRender() {
+            const totalH = computeLayout();
+            roadmapEl.style.height = (totalH + 60) + 'px';
+            renderNodes();
+            drawConnections();
+            updateProgress();
+        }
+
+        function applyFitScale() {
+            const contentW = parseInt(roadmapEl.style.width) || roadmapEl.offsetWidth;
+            const totalW = roadmapEl.offsetWidth;
+            const wrapperEl = document.getElementById('roadmap-wrapper');
+            if (contentW > window.innerWidth) {
+                const scale = window.innerWidth / totalW;
+                roadmapEl.style.transform = 'scale(' + scale + ')';
+                roadmapEl.style.transformOrigin = 'top left';
+                wrapperEl.style.height = (roadmapEl.offsetHeight * scale) + 'px';
+                wrapperEl.style.overflow = 'hidden';
+            } else {
+                roadmapEl.style.transform = '';
+                roadmapEl.style.transformOrigin = '';
+                wrapperEl.style.height = '';
+                wrapperEl.style.overflow = '';
+            }
+        }
+
+        // ─── Init ───
+        fullRender();
+        applyFitScale();
+
+        let resizeRAF = null;
+        window.addEventListener('resize', () => {
+            if (resizeRAF) cancelAnimationFrame(resizeRAF);
+            resizeRAF = requestAnimationFrame(() => {fullRender(); applyFitScale();});
+        });
+    </script>
+
+</body>
+
+</html>
